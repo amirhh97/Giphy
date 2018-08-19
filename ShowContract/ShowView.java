@@ -1,11 +1,13 @@
 package com.example.aebrahimi.firstmvp.ShowContract;
 
+import android.animation.ObjectAnimator;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -44,6 +46,7 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
     ProgressBar horizentalProgressBar;
     Button randomButton;
     int period = 10;
+    ObjectAnimator animator;
     @Inject
     ShowContract.Presenter presenter;
     Disposable disposable;
@@ -61,9 +64,9 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
         horizentalProgressBar = findViewById(R.id.horizental_progressbar);
         randomButton = findViewById(R.id.button);
         Item item = (Item) getIntent().getSerializableExtra(Constants.intentKey);
-        ShowRandomItem(item);
-
-
+        //instead of observer for setting progress bar you can use ObjectAnimator
+        animator.ofInt(horizentalProgressBar,"progress",10000,0).setDuration(3000).setInterpolator(new LinearInterpolator());
+        presenter.getRandomItems();
     }
 
     @Override
@@ -112,7 +115,7 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
     }
     Observable getTimeObservable()
     {
-        return  Observable.interval(1l,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread());
+        return  Observable.interval(1l,TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread());
 
     }
     Observable getButtonEventObservable() {
@@ -161,7 +164,7 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
 
            @Override
            public void accept(Long o) throws Exception {
-            horizentalProgressBar.setProgress(Integer.valueOf(String.valueOf(o)));
+            horizentalProgressBar.setProgress(o.intValue());
 
            }
        };
