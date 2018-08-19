@@ -33,6 +33,7 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
@@ -40,11 +41,14 @@ import io.reactivex.schedulers.Schedulers;
 public class ShowView extends AppCompatActivity implements ShowContract.View {
     ImageView gifPreview;
     ProgressBar progressBar;
+    ProgressBar horizentalProgressBar;
     Button randomButton;
-    int period=10;
+    int period = 10;
     @Inject
     ShowContract.Presenter presenter;
     Disposable disposable;
+    Disposable timerDisposable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,13 +58,13 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
         presenter.attach(this);
         gifPreview = findViewById(R.id.gif_preview);
         progressBar = findViewById(R.id.progressBarShow);
+        horizentalProgressBar = findViewById(R.id.horizental_progressbar);
         randomButton = findViewById(R.id.button);
         Item item = (Item) getIntent().getSerializableExtra(Constants.intentKey);
         ShowRandomItem(item);
 
 
     }
-
 
     @Override
     public void ShowRandomItem(Item item) {
@@ -74,7 +78,8 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                 hideProgress();
                 randomButton.setEnabled(true);
-                disposable=getDisposable();
+                timerDisposable=getTimeDisposable();
+                disposable = getDisposable();
                 return false;
             }
         }).into(gifPreview);
@@ -94,26 +99,48 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
     protected void onDestroy() {
         super.onDestroy();
         presenter.detach();
-      //  disposable.dispose();
-    }
-    private io.reactivex.Observable getTimerObservable(){
-        return  Observable.timer(period, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread());
-    }
-    private io.reactivex.Observable getClickObservable(){
-        return   RxView.clicks(randomButton).observeOn(AndroidSchedulers.mainThread());
-    }
-    Observable getButtonEventObservable(){
-
-       return null;
+        //  disposable.dispose();
     }
 
-    io.reactivex.functions.Consumer<Object> getConsumer()
+    private io.reactivex.Observable getTimerObservable() {
+        return Observable.timer(period, TimeUnit.SECONDS)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private io.reactivex.Observable getClickObservable() {
+        return RxView.clicks(randomButton).observeOn(AndroidSchedulers.mainThread());
+    }
+    Observable getTimeObservable()
     {
+        return  Observable.interval(1l,TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread());
+
+    }
+    Observable getButtonEventObservable() {
+
+        return Observable.create(new ObservableOnSubscribe<View>() {
+            @Override
+            public void subscribe(ObservableEmitter<View> emitter) throws Exception {
+                randomButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        emitter.onNext(v);
+                    }
+                });
+
+            }
+        });
+
+
+    }
+
+    io.reactivex.functions.Consumer<Object> getConsumer() {
         return new io.reactivex.functions.Consumer<Object>() {
             @Override
             public void accept(Object o) throws Exception {
-                Toast.makeText(ShowView.this,"please wait",Toast.LENGTH_SHORT).show();
+                Toast.makeText(ShowView.this, "please wait", Toast.LENGTH_SHORT).show();
                 disposable.dispose();
+                timerDisposable.dispose();
+                horizentalProgressBar.setProgress(0);
                 randomButton.setEnabled(false);
                 presenter.getRandomItems();
                 showProgress();
@@ -121,9 +148,26 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
         };
     }
 
-    Disposable getDisposable()
-    {
-        return getClickObservable().mergeWith(getTimerObservable()).subscribe(getConsumer());
+    Disposable getDisposable() {
+        return getButtonEventObservable().mergeWith(getTimerObservable()).subscribe(getConsumer());
     }
+    Disposable getTimeDisposable()
+    {
+        return getTimeObservable().subscribe(getTimerConsumer());
+    }
+    io.reactivex.functions.Consumer getTimerConsumer()
+    {
+       return new io.reactivex.functions.Consumer<Long>(){
 
-}
+           @Override
+           public void accept(Long o) throws Exception {
+            horizentalProgressBar.setProgress(Integer.valueOf(String.valueOf(o)));
+
+           }
+       };
+    }
+       }
+
+
+
+
