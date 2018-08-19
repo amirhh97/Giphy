@@ -65,7 +65,7 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
         randomButton = findViewById(R.id.button);
         Item item = (Item) getIntent().getSerializableExtra(Constants.intentKey);
         //instead of observer for setting progress bar you can use ObjectAnimator
-        animator.ofInt(horizentalProgressBar,"progress",10000,0).setDuration(3000).setInterpolator(new LinearInterpolator());
+       // animator.ofInt(horizentalProgressBar,"progress",10000,0).setDuration(3000).setInterpolator(new LinearInterpolator());
         presenter.getRandomItems();
     }
 
