@@ -25,13 +25,14 @@ public class ListView extends AppCompatActivity implements ListContract.View {
     GridLayoutManager layoutManager;
     ProgressBar progressBar;
     ProgressBar enteryProgress;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_trend);
         progressBar = findViewById(R.id.progressBar);
-        enteryProgress=findViewById(R.id.list_progress);
+        enteryProgress = findViewById(R.id.list_progress);
         App.getInjector().inject(this);
         presenter.attach(this);
         adapter = new TrendingAdapter(this, new ArrayList<Item>());

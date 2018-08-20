@@ -65,8 +65,8 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
         randomButton = findViewById(R.id.button);
         Item item = (Item) getIntent().getSerializableExtra(Constants.intentKey);
         //instead of observer for setting progress bar you can use ObjectAnimator
-       // animator.ofInt(horizentalProgressBar,"progress",10000,0).setDuration(3000).setInterpolator(new LinearInterpolator());
-        presenter.getRandomItems();
+        // animator.ofInt(horizentalProgressBar,"progress",10000,0).setDuration(3000).setInterpolator(new LinearInterpolator());
+        ShowRandomItem(item);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                 hideProgress();
                 randomButton.setEnabled(true);
-                timerDisposable=getTimeDisposable();
+                timerDisposable = getTimeDisposable();
                 disposable = getDisposable();
                 return false;
             }
@@ -113,11 +113,12 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
     private io.reactivex.Observable getClickObservable() {
         return RxView.clicks(randomButton).observeOn(AndroidSchedulers.mainThread());
     }
-    Observable getTimeObservable()
-    {
-        return  Observable.interval(1l,TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread());
+
+    Observable getTimeObservable() {
+        return Observable.interval(1l, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread());
 
     }
+
     Observable getButtonEventObservable() {
 
         return Observable.create(new ObservableOnSubscribe<View>() {
@@ -154,22 +155,22 @@ public class ShowView extends AppCompatActivity implements ShowContract.View {
     Disposable getDisposable() {
         return getButtonEventObservable().mergeWith(getTimerObservable()).subscribe(getConsumer());
     }
-    Disposable getTimeDisposable()
-    {
+
+    Disposable getTimeDisposable() {
         return getTimeObservable().subscribe(getTimerConsumer());
     }
-    io.reactivex.functions.Consumer getTimerConsumer()
-    {
-       return new io.reactivex.functions.Consumer<Long>(){
 
-           @Override
-           public void accept(Long o) throws Exception {
-            horizentalProgressBar.setProgress(o.intValue());
+    io.reactivex.functions.Consumer getTimerConsumer() {
+        return new io.reactivex.functions.Consumer<Long>() {
 
-           }
-       };
+            @Override
+            public void accept(Long o) throws Exception {
+                horizentalProgressBar.setProgress(o.intValue());
+
+            }
+        };
     }
-       }
+}
 
 
 

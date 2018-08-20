@@ -1,6 +1,7 @@
 package com.example.aebrahimi.firstmvp.ListContract;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.aebrahimi.firstmvp.BaseContract.BaseContract;
 import com.example.aebrahimi.firstmvp.Constants;
@@ -10,19 +11,19 @@ import com.example.aebrahimi.firstmvp.Model.ItemsModel;
 import com.example.aebrahimi.firstmvp.Network.GiphyApi;
 
 import java.lang.ref.WeakReference;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Function;
+import io.reactivex.internal.disposables.DisposableContainer;
+import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,43 +34,37 @@ import retrofit2.Response;
  */
 
 public class ListPresenterImp implements ListContract.Presenter {
-    WeakReference<ListContract.View> view;
-    int Offset = 0;
-    @Inject
+    static WeakReference<ListContract.View> view;
+    static int Offset = 0;
     GiphyApi Api;
-
-    public ListPresenterImp(GiphyApi api) {
+    CompositeDisposable compositeDisposable;
+    @Inject
+    public ListPresenterImp(GiphyApi api,CompositeDisposable contanier) {
         this.Api = api;
+        this.compositeDisposable=contanier;
     }
 
     @Override
     public void getListItems() {
-        Api.getTrending(Constants.key, Offset, 20).enqueue(new Callback<ItemsModel>() {
-            @Override
-            public void onResponse(Call<ItemsModel> call, Response<ItemsModel> response) {
-                List<Item> item = new ArrayList<>();
-                ItemsModel model = response.body();
-                for (int i = 0; i < model.getData().size(); i++) {
-                    GifModel.User u = model.getData().get(i).getUser();
-                    Item a = new Item();
-                    if (u != null)
-                        a.setTitle(model.getData().get(i).getUser().getDisplay_name());
-                    a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
-                    a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
-                    a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
-                    item.add(a);
-                }
-                Offset = (int) (model.getPagination().getOffset() + 20);
-                view.get().ShowItems(item);
-
-            }
-
-            @Override
-
-            public void onFailure(Call<ItemsModel> call, Throwable t) {
-                Log.d(" failed", t.getMessage());
-            }
-        });
+        compositeDisposable=new CompositeDisposable() ;
+       compositeDisposable.add(
+               Api.getTrending(Constants.key, Offset, 20).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<ItemsModel, List<Item>>() {
+                   @Override
+                   public List<Item> apply(ItemsModel model) throws Exception {
+                       List<Item> item = new ArrayList<>();
+                       for (int i = 0; i < model.getData().size(); i++) {
+                           GifModel.User u = model.getData().get(i).getUser();
+                           Item a = new Item();
+                           if (u != null) a.setTitle(model.getData().get(i).getUser().getDisplay_name());
+                           a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
+                           a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
+                           a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
+                           item.add(a);
+                       }
+                       return item;
+                   }
+               }).subscribe(getTrendingConsumer())
+       );
 
     }
 
@@ -80,38 +75,17 @@ public class ListPresenterImp implements ListContract.Presenter {
 
     @Override
     public void detach() {
+        compositeDisposable.clear();
         view.clear();
     }
-
-    /*@Override
-    public void getListItems() {
-        Api.gettrending(Constants.key, Offset, 20).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread()).subscribeWith(new SingleObserver<ItemsModel>() {
+    private static io.reactivex.functions.Consumer<List<Item>> getTrendingConsumer()
+    {
+        return new io.reactivex.functions.Consumer<List<Item>>() {
             @Override
-            public void onSubscribe(Disposable d) {
-
+            public void accept(List<Item> Item) {
+                view.get().ShowItems(Item);
             }
+        };
+    }
 
-            @Override
-            public void onSuccess(ItemsModel model) {
-                List<Item> item = new ArrayList<>();
-                for (int i = 0; i < model.getData().size(); i++) {
-                    GifModel.User u = model.getData().get(i).getUser();
-                    Item a = new Item();
-                    if (u != null)
-                        a.setTitle(model.getData().get(i).getUser().getDisplay_name());
-                    a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
-                    a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
-                    a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
-                    item.add(a);
-                }
-                Offset = (int) (model.getPagination().getOffset() + 20);
-                view.get().ShowItems(item);
-            }
-
-            @Override
-            public void onError(Throwable e) {
-                Log.d(" failed", e.getMessage());
-            }
-    });*/
 }
-

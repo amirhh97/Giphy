@@ -6,5 +6,5 @@ package com.example.aebrahimi.firstmvp;
 
 public class Constants {
     public final static String key = "jwGikKxp8oo5I12YxuU7bWPQY7aIOzdR";
-    public final static  String intentKey="item";
+    public final static String intentKey = "item";
 }
