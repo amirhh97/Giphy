@@ -50,7 +50,7 @@ public class ListView extends AppCompatActivity implements ListContract.View {
                 }
             }
         });
-        presenter.getListItems();
+
     }
 
     @Override

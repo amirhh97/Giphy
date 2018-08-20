@@ -8,6 +8,7 @@ import com.example.aebrahimi.firstmvp.ShowContract.ShowPresenterImp;
 
 import dagger.Module;
 import dagger.Provides;
+import io.reactivex.disposables.CompositeDisposable;
 
 /**
  * Created by aebrahimi on 8/14/2018 AD.
@@ -16,13 +17,19 @@ import dagger.Provides;
 public class PresenterModule {
 
     @Provides
-    ListContract.Presenter provideShowPresenter(GiphyApi api) {
-        return new ListPresenterImp(api);
+    ListContract.Presenter provideShowPresenter(GiphyApi api, CompositeDisposable compositeDisposable) {
+        return new ListPresenterImp(api,compositeDisposable);
     }
 
-   @Provides
-    ShowContract.Presenter provideListPresenter(GiphyApi api) {
-        return new ShowPresenterImp(api);
+    @Provides
+    ShowContract.Presenter provideListPresenter(GiphyApi api,CompositeDisposable compositeDisposable) {
+        return new ShowPresenterImp(api,compositeDisposable);
     }
+    @Provides
+    CompositeDisposable provideCompositDisposable()
+    {
+        return  new CompositeDisposable();
+    }
+
 
 }
