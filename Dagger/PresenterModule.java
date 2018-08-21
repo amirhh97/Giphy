@@ -1,5 +1,6 @@
 package com.example.aebrahimi.firstmvp.Dagger;
 
+import com.example.aebrahimi.firstmvp.DataBase.AppDataBase;
 import com.example.aebrahimi.firstmvp.ListContract.ListContract;
 import com.example.aebrahimi.firstmvp.ListContract.ListPresenterImp;
 import com.example.aebrahimi.firstmvp.Network.GiphyApi;
@@ -17,8 +18,8 @@ import io.reactivex.disposables.CompositeDisposable;
 public class PresenterModule {
 
     @Provides
-    ListContract.Presenter provideShowPresenter(GiphyApi api, CompositeDisposable compositeDisposable) {
-        return new ListPresenterImp(api,compositeDisposable);
+    ListContract.Presenter provideShowPresenter(GiphyApi api, CompositeDisposable compositeDisposable,AppDataBase db) {
+        return new ListPresenterImp(api,compositeDisposable,db);
     }
 
     @Provides
@@ -30,6 +31,7 @@ public class PresenterModule {
     {
         return  new CompositeDisposable();
     }
+
 
 
 }

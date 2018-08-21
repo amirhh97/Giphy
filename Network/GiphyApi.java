@@ -14,7 +14,7 @@ import retrofit2.http.Query;
 
 public interface GiphyApi {
     @GET("v1/gifs/trending")
-    Observable<ItemsModel> getTrending(@Query("api_key") String key, @Query("offset") int offset, @Query("limit") int limit);
+    Observable<ItemsModel> getTrending(@Query("api_key") String key, @Query("offset") int offset, @Query("limit") int limit) throws MyNetworkExcption;
     @GET("/v1/gifs/random")
     Single<RandomModel> getRandoItem(@Query("api_key") String Key);
 }

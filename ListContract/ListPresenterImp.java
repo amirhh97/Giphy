@@ -5,10 +5,12 @@ import android.widget.Toast;
 
 import com.example.aebrahimi.firstmvp.BaseContract.BaseContract;
 import com.example.aebrahimi.firstmvp.Constants;
+import com.example.aebrahimi.firstmvp.DataBase.AppDataBase;
 import com.example.aebrahimi.firstmvp.Model.GifModel;
 import com.example.aebrahimi.firstmvp.Model.Item;
 import com.example.aebrahimi.firstmvp.Model.ItemsModel;
 import com.example.aebrahimi.firstmvp.Network.GiphyApi;
+import com.example.aebrahimi.firstmvp.Network.MyNetworkExcption;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -38,35 +40,47 @@ public class ListPresenterImp implements ListContract.Presenter {
     static int Offset = 0;
     GiphyApi Api;
     CompositeDisposable compositeDisposable;
+    static AppDataBase db;
     @Inject
-    public ListPresenterImp(GiphyApi api,CompositeDisposable contanier) {
+    public ListPresenterImp(GiphyApi api, CompositeDisposable contanier, AppDataBase dataBase) {
         this.Api = api;
-        this.compositeDisposable=contanier;
+        this.compositeDisposable = contanier;
+        db = dataBase;
     }
 
     @Override
-    public void getListItems() {
-        compositeDisposable=new CompositeDisposable() ;
-       compositeDisposable.add(
-               Api.getTrending(Constants.key, Offset, 20).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<ItemsModel, List<Item>>() {
-                   @Override
-                   public List<Item> apply(ItemsModel model) throws Exception {
-                       List<Item> item = new ArrayList<>();
-                       for (int i = 0; i < model.getData().size(); i++) {
-                           GifModel.User u = model.getData().get(i).getUser();
-                           Item a = new Item();
-                           if (u != null) a.setTitle(model.getData().get(i).getUser().getDisplay_name());
-                           a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
-                           a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
-                           a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
-                           item.add(a);
-                       }
-                       return item;
-                   }
-               }).subscribe(getTrendingConsumer())
-       );
+    public void getListItems() throws MyNetworkExcption {
+        Log.d("msg","ok");
+        compositeDisposable = new CompositeDisposable();
+        compositeDisposable.add(
+                Api.getTrending(Constants.key, Offset, 20).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<ItemsModel, List<Item>>() {
+                    @Override
+                    public List<Item> apply(ItemsModel model) throws Exception {
+                        Offset = (int) (model.getPagination().getOffset() + 20);
+                        List<Item> item = new ArrayList<>();
+                        for (int i = 0; i < model.getData().size(); i++) {
+                            GifModel.User u = model.getData().get(i).getUser();
+                            Item a = new Item();
+                            if (u != null)
+                                a.setTitle(model.getData().get(i).getUser().getDisplay_name());
+                            a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
+                            a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
+                            a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
+                            item.add(a);
+                        }
+                        return item;
+                    }
+                }).subscribe(getTrendingConsumer())
+        );
+
 
     }
+
+    @Override
+    public void getCachedListItem() {
+        view.get().ShowItems(db.itemdao().getItems());
+    }
+
 
     @Override
     public void attach(BaseContract.View view) {
@@ -76,14 +90,20 @@ public class ListPresenterImp implements ListContract.Presenter {
     @Override
     public void detach() {
         compositeDisposable.clear();
+        db=null;
         view.clear();
     }
-    private static io.reactivex.functions.Consumer<List<Item>> getTrendingConsumer()
-    {
+
+    private static io.reactivex.functions.Consumer<List<Item>> getTrendingConsumer() {
         return new io.reactivex.functions.Consumer<List<Item>>() {
             @Override
-            public void accept(List<Item> Item) {
-                view.get().ShowItems(Item);
+            public void accept(List<Item> items) {
+               if (Offset == 20) {
+                    db.itemdao().deleteAll();
+                    db.itemdao().insertItem(items);
+                }
+                view.get().ShowItems(items);
+
             }
         };
     }

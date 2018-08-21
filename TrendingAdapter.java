@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.aebrahimi.firstmvp.Model.Item;
 import com.example.aebrahimi.firstmvp.ShowContract.ShowView;
 
@@ -47,7 +49,9 @@ public class TrendingAdapter extends RecyclerView.Adapter<TrendingAdapter.Holder
     public void onBindViewHolder(Holder holder, int position) {
 
         holder.user.setText(items.get(position).getTitle());
-        Glide.with(c).load(items.get(position).getUrl()).into(holder.gif);
+        Glide.with(c)
+                .load(items.get(position)
+                        .getUrl()).into(holder.gif);
     }
 
     @Override

@@ -1,6 +1,10 @@
 package com.example.aebrahimi.firstmvp.Dagger;
 
+import android.net.ConnectivityManager;
+
+import com.example.aebrahimi.firstmvp.App;
 import com.example.aebrahimi.firstmvp.Network.GiphyApi;
+import com.example.aebrahimi.firstmvp.Network.MyInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -19,11 +23,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class NetworkModule {
     String baseUrl = "https://api.giphy.com/";
-
+    ConnectivityManager cm;
     @Provides
     @Singleton
     OkHttpClient provideOkHttpClient() {
-        return new OkHttpClient.Builder().build();
+        return new OkHttpClient.Builder().addInterceptor(new MyInterceptor(cm)).build();
     }
 
     @Provides
@@ -42,5 +46,12 @@ public class NetworkModule {
     @Singleton
     GiphyApi provideApi(Retrofit retrofit) {
         return retrofit.create(GiphyApi.class);
+    }
+    @Provides
+    @Singleton
+    ConnectivityManager provideConnectivityManager()
+    {
+        cm=(ConnectivityManager) App.getContext().getSystemService(App.getContext().CONNECTIVITY_SERVICE);
+        return cm;
     }
 }

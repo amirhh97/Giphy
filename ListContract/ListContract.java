@@ -2,6 +2,7 @@ package com.example.aebrahimi.firstmvp.ListContract;
 
 import com.example.aebrahimi.firstmvp.BaseContract.BaseContract;
 import com.example.aebrahimi.firstmvp.Model.Item;
+import com.example.aebrahimi.firstmvp.Network.MyNetworkExcption;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ import java.util.List;
 public interface ListContract {
     interface Presenter extends BaseContract.Presenter
     {
-         void getListItems();
+         void getListItems() throws MyNetworkExcption;
+         void getCachedListItem();
     }
     interface View extends BaseContract.View
     {
