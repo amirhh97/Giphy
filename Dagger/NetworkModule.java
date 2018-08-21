@@ -13,6 +13,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -23,11 +24,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class NetworkModule {
     String baseUrl = "https://api.giphy.com/";
-    ConnectivityManager cm;
     @Provides
     @Singleton
     OkHttpClient provideOkHttpClient() {
-        return new OkHttpClient.Builder().addInterceptor(new MyInterceptor(cm)).build();
+        return new OkHttpClient.Builder().addInterceptor(new MyInterceptor((ConnectivityManager) App.getContext().getSystemService(App.getContext().CONNECTIVITY_SERVICE))).build();
     }
 
     @Provides
@@ -47,11 +47,11 @@ public class NetworkModule {
     GiphyApi provideApi(Retrofit retrofit) {
         return retrofit.create(GiphyApi.class);
     }
-    @Provides
+   /* @Provides
     @Singleton
-    ConnectivityManager provideConnectivityManager()
+    Interceptor provideConnectivityManager()
     {
-        cm=(ConnectivityManager) App.getContext().getSystemService(App.getContext().CONNECTIVITY_SERVICE);
-        return cm;
-    }
+        return new MyInterceptor();
+    }*/
+
 }

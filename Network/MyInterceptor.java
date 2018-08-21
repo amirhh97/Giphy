@@ -6,6 +6,8 @@ import android.net.NetworkInfo;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,7 +27,7 @@ public class MyInterceptor implements okhttp3.Interceptor {
     public Response intercept(okhttp3.Interceptor.Chain chain) throws IOException {
         if (isConnected()) {
             try {
-                throw new Exception();
+                throw new MyNetworkExcption();
             } catch (Exception e) {
                 e.printStackTrace();
             }

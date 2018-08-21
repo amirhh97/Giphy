@@ -96,6 +96,7 @@ public class ListPresenterImp implements ListContract.Presenter {
 
     private static io.reactivex.functions.Consumer<List<Item>> getTrendingConsumer() {
         return new io.reactivex.functions.Consumer<List<Item>>() {
+
             @Override
             public void accept(List<Item> items) {
                if (Offset == 20) {
