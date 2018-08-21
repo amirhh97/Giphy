@@ -1,13 +1,10 @@
 package com.example.aebrahimi.firstmvp.Dagger;
 
-import android.app.Application;
-
 import com.example.aebrahimi.firstmvp.ListContract.ListView;
 import com.example.aebrahimi.firstmvp.ShowContract.ShowView;
 
 import javax.inject.Singleton;
 
-import dagger.BindsInstance;
 import dagger.Component;
 
 /**
@@ -19,6 +16,5 @@ public interface Injector {
     void inject(ListView view);
 
     void inject(ShowView view);
-
 
 }
