@@ -19,7 +19,7 @@ public interface Dao {
     @Query("select * from itemstable")
     List<Item> getItems();
 
-    @Query("delete from itemstable")
+    @Query("delete from itemstable ")
     void deleteAll();
 
 }

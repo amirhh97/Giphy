@@ -3,12 +3,15 @@ package com.example.aebrahimi.firstmvp.ListContract;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.aebrahimi.firstmvp.App;
@@ -44,6 +47,8 @@ public class ListView extends AppCompatActivity implements ListContract.View {
     GridLayoutManager layoutManager;
     ProgressBar progressBar;
     ProgressBar enteryProgress;
+    RelativeLayout layout;
+    Snackbar snackbar;
     static boolean isOnline = false;
 
     @Override
@@ -53,6 +58,7 @@ public class ListView extends AppCompatActivity implements ListContract.View {
         recyclerView = findViewById(R.id.recycler_trend);
         progressBar = findViewById(R.id.progressBar);
         enteryProgress = findViewById(R.id.list_progress);
+        layout=findViewById(R.id.layout);
         App.getInjector().inject(this);
         presenter.attach(this);
         adapter = new TrendingAdapter(this, new ArrayList<Item>());
@@ -74,18 +80,12 @@ public class ListView extends AppCompatActivity implements ListContract.View {
                 }
             }
         });
+        try {
+            presenter.getListItems();
+        } catch (MyNetworkExcption myNetworkExcption) {
+            myNetworkExcption.printStackTrace();
 
-
-            try {
-                presenter.getListItems();
-            } catch (MyNetworkExcption myNetworkExcption) {
-                myNetworkExcption.printStackTrace();
-                presenter.getCachedListItem();
-                Toast.makeText(ListView.this, "No Connetion", Toast.LENGTH_SHORT).show();
-            }
-
-
-
+        }
 
     }
 
@@ -95,7 +95,23 @@ public class ListView extends AppCompatActivity implements ListContract.View {
         // adapter.notifyItemRangeInserted(adapter.getItemCount()-items.size(),adapter.getItemCount());
         adapter.notifyDataSetChanged();
         hideProgress();
+        //hideSnackBar();
 
+    }
+
+    @Override
+    public void showSnackBar() {
+        snackbar.make(layout,"No Connection",Snackbar.LENGTH_INDEFINITE).setAction("retry", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    presenter.getListItems();
+                } catch (MyNetworkExcption myNetworkExcption) {
+                    myNetworkExcption.printStackTrace();
+                }
+            }
+        }).show();
+        hideProgress();
     }
 
     @Override
@@ -104,9 +120,15 @@ public class ListView extends AppCompatActivity implements ListContract.View {
     }
 
     @Override
+    public void hideSnackBar() {
+        snackbar.dismiss();
+    }
+
+    @Override
     public void hideProgress() {
         progressBar.setVisibility(View.GONE);
         enteryProgress.setVisibility(View.GONE);
+
     }
 
     @Override

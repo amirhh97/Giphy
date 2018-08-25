@@ -19,12 +19,14 @@ public interface ListContract {
     interface View extends BaseContract.View
     {
         void ShowItems(List<Item> items);
-
+        void showSnackBar();
+        void hideSnackBar();
         @Override
         void hideProgress();
 
         @Override
         void showProgress();
+
 
 
     }

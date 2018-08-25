@@ -41,6 +41,7 @@ public class ListPresenterImp implements ListContract.Presenter {
     GiphyApi Api;
     CompositeDisposable compositeDisposable;
     static AppDataBase db;
+    static boolean firstPage=true;
     @Inject
     public ListPresenterImp(GiphyApi api, CompositeDisposable contanier, AppDataBase dataBase) {
         this.Api = api;
@@ -49,30 +50,41 @@ public class ListPresenterImp implements ListContract.Presenter {
     }
 
     @Override
-    public void getListItems() throws MyNetworkExcption {
-        Log.d("msg","ok");
+    public void getListItems()  {
         compositeDisposable = new CompositeDisposable();
-        compositeDisposable.add(
-                Api.getTrending(Constants.key, Offset, 20).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<ItemsModel, List<Item>>() {
-                    @Override
-                    public List<Item> apply(ItemsModel model) throws Exception {
-                        Offset = (int) (model.getPagination().getOffset() + 20);
-                        List<Item> item = new ArrayList<>();
-                        for (int i = 0; i < model.getData().size(); i++) {
-                            GifModel.User u = model.getData().get(i).getUser();
-                            Item a = new Item();
-                            if (u != null)
-                                a.setTitle(model.getData().get(i).getUser().getDisplay_name());
-                            a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
-                            a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
-                            a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
-                            item.add(a);
+        try {
+            compositeDisposable.add(
+                    Api.getTrending(Constants.key, Offset, 20).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).map(new Function<ItemsModel, List<Item>>() {
+                        @Override
+                        public List<Item> apply(ItemsModel model) throws Exception {
+                            Offset = (int) (model.getPagination().getOffset() + 20);
+                            List<Item> item = new ArrayList<>();
+                            for (int i = 0; i < model.getData().size(); i++) {
+                                GifModel.User u = model.getData().get(i).getUser();
+                                Item a = new Item();
+                                if (u != null)
+                                    a.setTitle(model.getData().get(i).getUser().getDisplay_name());
+                                a.setUrl(model.getData().get(i).getImage().getFixed_heightObject().getUrl());
+                                a.setOriginalUrl(model.getData().get(i).getImage().getOriginalImage().getUrl());
+                                a.setOriginalUrl(a.getOriginalUrl().replace("giphy_s", "200w"));
+                                item.add(a);
+                            }
+                            return item;
                         }
-                        return item;
-                    }
-                }).subscribe(getTrendingConsumer())
-        );
-
+                    }).subscribe(getTrendingConsumer(), new io.reactivex.functions.Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) throws Exception {
+                            if(Offset==0&&firstPage) {
+                                getCachedListItem();
+                                firstPage=false;
+                            }
+                                view.get().showSnackBar();
+                        }
+                    })
+            );
+        } catch (MyNetworkExcption myNetworkExcption) {
+            myNetworkExcption.printStackTrace();
+        }
 
     }
 
@@ -103,10 +115,14 @@ public class ListPresenterImp implements ListContract.Presenter {
                     db.itemdao().deleteAll();
                     db.itemdao().insertItem(items);
                 }
+                firstPage=true;
                 view.get().ShowItems(items);
+
 
             }
         };
     }
+
+
 
 }

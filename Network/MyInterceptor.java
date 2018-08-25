@@ -25,7 +25,7 @@ public class MyInterceptor implements okhttp3.Interceptor {
 
     @Override
     public Response intercept(okhttp3.Interceptor.Chain chain) throws IOException {
-        if (isConnected()) {
+        if (!isConnected()) {
             try {
                 throw new MyNetworkExcption();
             } catch (Exception e) {
