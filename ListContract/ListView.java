@@ -30,14 +30,6 @@ import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 public class ListView extends AppCompatActivity implements ListContract.View {
     @Inject
@@ -101,7 +93,7 @@ public class ListView extends AppCompatActivity implements ListContract.View {
 
     @Override
     public void showSnackBar() {
-        snackbar.make(layout,"No Connection",Snackbar.LENGTH_INDEFINITE).setAction("retry", new View.OnClickListener() {
+        snackbar.make(layout,"Check Your Connection",Snackbar.LENGTH_INDEFINITE).setAction("Retry", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
@@ -137,17 +129,5 @@ public class ListView extends AppCompatActivity implements ListContract.View {
         presenter.detach();
     }
 
-   /* public static boolean isOnline() {
-        try {
-            int timeoutMs = 1500;
-            Socket sock = new Socket();
-            SocketAddress sockaddr = new InetSocketAddress("8.8.8.8", 53);
-            sock.connect(sockaddr, timeoutMs);
-            sock.close();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }*/
 }
 

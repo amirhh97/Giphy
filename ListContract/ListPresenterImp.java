@@ -1,8 +1,5 @@
 package com.example.aebrahimi.firstmvp.ListContract;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import com.example.aebrahimi.firstmvp.BaseContract.BaseContract;
 import com.example.aebrahimi.firstmvp.Constants;
 import com.example.aebrahimi.firstmvp.DataBase.AppDataBase;
@@ -15,21 +12,13 @@ import com.example.aebrahimi.firstmvp.Network.MyNetworkExcption;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
-import io.reactivex.SingleObserver;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.reactivex.internal.disposables.DisposableContainer;
-import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Created by aebrahimi on 8/13/2018 AD.

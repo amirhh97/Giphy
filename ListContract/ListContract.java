@@ -21,11 +21,6 @@ public interface ListContract {
         void ShowItems(List<Item> items);
         void showSnackBar();
         void hideSnackBar();
-        @Override
-        void hideProgress();
-
-        @Override
-        void showProgress();
 
 
 

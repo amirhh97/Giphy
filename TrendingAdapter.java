@@ -51,7 +51,7 @@ public class TrendingAdapter extends RecyclerView.Adapter<TrendingAdapter.Holder
         holder.user.setText(items.get(position).getTitle());
         Glide.with(c)
                 .load(items.get(position)
-                        .getUrl()).into(holder.gif);
+                        .getUrl()).apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.DATA).centerCrop()).into(holder.gif);
     }
 
     @Override
