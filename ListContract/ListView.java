@@ -1,18 +1,13 @@
 package com.example.aebrahimi.firstmvp.ListContract;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.example.aebrahimi.firstmvp.App;
 import com.example.aebrahimi.firstmvp.Model.Item;
@@ -20,13 +15,8 @@ import com.example.aebrahimi.firstmvp.Network.MyNetworkExcption;
 import com.example.aebrahimi.firstmvp.R;
 import com.example.aebrahimi.firstmvp.TrendingAdapter;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 
